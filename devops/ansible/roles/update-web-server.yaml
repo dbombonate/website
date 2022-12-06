@@ -1,0 +1,37 @@
+---
+- name: Update Webserver
+  hosts: website
+  
+  tasks:
+
+  - name: Update Linux packages
+    become: True
+    ansible.builtin.yum: name=* state=latest
+
+  - name: Ensure apache is in the latest version
+    become: True
+    ansible.builtin.yum:
+      name: httpd
+      state: latest
+
+  - name: Create website dir
+    become: True
+    ansible.builtin.file:
+      path: /var/www/website
+      state: directory
+      owner: apache
+      group: apache
+      mode: 0775
+      recurse: yes
+
+  - name: Copy website dir to server
+    become: True
+    ansible.builtin.copy:
+      src: /home/daniel/projects/website/site/
+      dest: /var/www/website/
+
+  - name: Copy httpd conf file
+    become: True
+    ansible.builtin.copy:
+      src: /home/daniel/projects/website/devops/ansible/template/httpd.conf
+      dest: /etc/httpd/conf/httpd.conf
