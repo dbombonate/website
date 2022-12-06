@@ -26,7 +26,7 @@
 
   - name: Copy website dir to server
     become: True
-    ansible.builtin.copy:
+    ansible.posix.synchronize:
       src: /home/daniel/projects/website/site/
       dest: /var/www/website/
 
@@ -35,3 +35,17 @@
     ansible.builtin.copy:
       src: /home/daniel/projects/website/devops/ansible/template/httpd.conf
       dest: /etc/httpd/conf/httpd.conf
+    notify:
+    - Restart apache
+
+  - name: Ensure apache is running
+    become: True
+    ansible.builtin.service:
+      name: httpd
+      state: started
+
+  handlers:
+    - name: Restart apache
+      ansible.builtin.service:
+        name: httpd
+        state: restarted
